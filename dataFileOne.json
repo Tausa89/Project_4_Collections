@@ -1,0 +1,107 @@
+[
+  {
+    "customer": {
+      "name": "Jan",
+      "surname": "Kos",
+      "age": 18,
+      "cash": 2000
+    },
+    "products": [
+      {
+        "name": "Komputer",
+        "category": "Elektronika",
+        "price": 2400
+      },
+      {
+        "name": "Pan Tadeusz",
+        "category": "Ksiazka",
+        "price": 120
+      }
+    ]
+  },
+  {
+    "customer": {
+      "name": "Tom",
+      "surname": "Nowak",
+      "age": 22,
+      "cash": 2000
+    },
+    "products": [
+      {
+        "name": "Laptop",
+        "category": "Elektronika",
+        "price": 2400
+      },
+      {
+        "name": "Harry Potter",
+        "category": "Ksiazka",
+        "price": 100
+      }
+    ]
+  },
+  {
+    "customer": {
+      "name": "Mariusz",
+      "surname": "Kania",
+      "age": 30,
+      "cash": 5000
+    },
+    "products": [
+      {
+        "name": "Lodówka",
+        "category": "AGD",
+        "price": 12000
+      },
+      {
+        "name": "Piłka",
+        "category": "Sport",
+        "price": 200
+      }
+    ]
+  },
+  {
+    "customer": {
+      "name": "Jan",
+      "surname": "Kos",
+      "age": 18,
+      "cash": 2000
+    },
+    "products": [
+      {
+        "name": "Rower",
+        "category": "Sport",
+        "price": 1500
+      },
+      {
+        "name": "Pucio",
+        "category": "Ksiazka",
+        "price": 50
+      },
+      {
+        "name": "Komputer",
+        "category": "Elektronika",
+        "price": 1800
+      }
+    ]
+  },
+  {
+    "customer": {
+      "name": "Mariusz",
+      "surname": "Kania",
+      "age": 30,
+      "cash": 5000
+    },
+    "products": [
+      {
+        "name": "Lodówka",
+        "category": "AGD",
+        "price": 1200
+      },
+      {
+        "name": "Rakieta do Tenisa",
+        "category": "Sport",
+        "price": 200
+      }
+    ]
+  }
+]
