@@ -4,26 +4,23 @@ import com.collections.persistence.Customer;
 import com.collections.persistence.Order;
 import com.collections.persistence.Product;
 import com.collections.persistence.converter.JsonConverterOrders;
+import com.collections.service.exception.ShoppingServiceException;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ShoppingService {
 
-    private Map<Customer,Map<Product,Integer>> shopping;
+    private Map<Customer, Map<Product, Integer>> shopping;
 
 
-    public ShoppingService(String ... filenames) {
+    public ShoppingService(String... filenames) {
         this.shopping = init(filenames);
     }
 
 
-
-
-    private Map<Customer, Map<Product, Integer>> init(String ... filenames) {
+    private Map<Customer, Map<Product, Integer>> init(String... filenames) {
 
         List<Order> orders = Arrays
                 .stream(filenames)
@@ -55,6 +52,18 @@ public class ShoppingService {
 
 
     private void updateCustomerProduct(Map<Customer, Map<Product, Integer>> customersMap, Order order, Product product) {
+
+        if (Objects.isNull(customersMap)) {
+            throw new ShoppingServiceException("customersMap is null");
+        }
+
+        if (Objects.isNull(order)) {
+            throw new ShoppingServiceException("order is null");
+        }
+
+        if (Objects.isNull(product)) {
+            throw new ShoppingServiceException("product is null");
+        }
         customersMap.get(order.getCustomer())
                 .replace(product,
                         customersMap.get(order.getCustomer()).get(product),
@@ -62,10 +71,24 @@ public class ShoppingService {
     }
 
     private void addNewCustomerProduct(Product product, Map<Product, Integer> productIntegerMap) {
+        if (Objects.isNull(product)) {
+            throw new ShoppingServiceException("product is null");
+        }
+        if (Objects.isNull(productIntegerMap)) {
+            throw new ShoppingServiceException("productMap is null");
+        }
         productIntegerMap.put(product, 1);
     }
 
     private void addNewCustomer(Map<Customer, Map<Product, Integer>> customersMap, Order order) {
+
+        if (Objects.isNull(order)) {
+            throw new ShoppingServiceException("order is null");
+        }
+        if (Objects.isNull(customersMap)) {
+            throw new ShoppingServiceException("customersMap is null");
+        }
+
         Map<Product, Integer> temp = new HashMap<>();
         addNewCustomerProduct(order.getProducts().get(0), temp);
         customersMap.put(order.getCustomer(), temp);
@@ -75,4 +98,29 @@ public class ShoppingService {
     public Map<Customer, Map<Product, Integer>> getShopping() {
         return shopping;
     }
+
+
+
+
+
+    public Customer getCustomerWhichPaidTheMost(Map<Customer, Map<Product, Integer>> customersMap) {
+        Map<Customer, BigDecimal> customerPayments = customersMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> totalPurchaseByCustomer(e.getValue())));
+        return customerPayments.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElseThrow();
+    }
+
+    private BigDecimal totalPurchaseByCustomer(Map<Product, Integer> customerOrders) {
+        return customerOrders.entrySet()
+                .stream()
+                .map(o -> o.getKey().getPrice().multiply(BigDecimal.valueOf(o.getValue())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+
 }
