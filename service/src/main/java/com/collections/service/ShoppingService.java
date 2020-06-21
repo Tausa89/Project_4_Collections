@@ -70,4 +70,9 @@ public class ShoppingService {
         addNewCustomerProduct(order.getProducts().get(0), temp);
         customersMap.put(order.getCustomer(), temp);
     }
+
+
+    public Map<Customer, Map<Product, Integer>> getShopping() {
+        return shopping;
+    }
 }
