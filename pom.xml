@@ -7,6 +7,9 @@
     <groupId>com.collections</groupId>
     <artifactId>Project_4_Collections</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>persistence</module>
+    </modules>
     <packaging>pom</packaging>
 
     <name>Project_4_Collections</name>
