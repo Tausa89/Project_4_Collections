@@ -14,6 +14,13 @@ public class App {
         shoppingService.getShopping().forEach((k,v) -> System.out.println(k + "----->" + v));
 
 
+//        var result = shoppingService.getCustomerWhichPaidMostInGivenCategory("Elektronika");
+        shoppingService.getMostPopularProductsForEveryAge();
+
+        shoppingService.getShopping().forEach((k,v) -> System.out.println(k + " ----->" + v));
+
+
+
 
 
 

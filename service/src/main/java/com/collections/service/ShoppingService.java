@@ -8,6 +8,7 @@ import com.collections.service.exception.ShoppingServiceException;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ShoppingService {
@@ -103,12 +104,12 @@ public class ShoppingService {
 
 
 
-    public Customer getCustomerWhichPaidTheMost(Map<Customer, Map<Product, Integer>> customersMap) {
-        Map<Customer, BigDecimal> customerPayments = customersMap.entrySet()
+    public Customer getCustomerWhichPaidTheMost() {
+        var collect = shopping.entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> totalPurchaseByCustomer(e.getValue())));
-        return customerPayments.entrySet()
+        return collect.entrySet()
                 .stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
@@ -120,6 +121,83 @@ public class ShoppingService {
                 .stream()
                 .map(o -> o.getKey().getPrice().multiply(BigDecimal.valueOf(o.getValue())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+
+    public Customer getCustomerWhichPaidMostInGivenCategory(String categoryName){
+
+        if(Objects.isNull(categoryName)){
+            throw new ShoppingServiceException("category name is null");
+        }
+
+
+
+        var result = shopping
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> getFilteredShoppingList(e.getValue(), categoryName)))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> totalPurchaseByCustomer(e.getValue())));
+        return result.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElseThrow();
+
+    }
+
+
+    private Map<Product, Integer> getFilteredShoppingList(Map<Product,Integer> customerOrders, String filename){
+
+        return customerOrders
+                .entrySet()
+                .stream()
+                .filter(x -> x.getKey().getCategory().equals(filename))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    }
+
+
+    public Map<Integer, String> getMostPopularProductsForEveryAge(){
+
+
+        return shopping
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        t -> t.getValue()
+                                .keySet()
+                                .stream()
+                                .map(Product::getCategory)
+                                .collect(Collectors.toList())))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        p -> getMostCommonElementFromList(p.getValue())))
+                .entrySet()
+                .stream()
+                .collect(Collectors.groupingBy(p -> p.getKey().getAge(),
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        p -> getMostCommonElementFromList(p.getValue())));
+
+    }
+
+    private String getMostCommonElementFromList(List<String> list) {
+        return list
+                .stream()
+                .collect(Collectors
+                        .groupingBy(Function.identity(),
+                                Collectors.counting()))
+                .entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow()
+                .getKey();
     }
 
 

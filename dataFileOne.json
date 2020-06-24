@@ -1,6 +1,26 @@
 [
   {
     "customer": {
+      "name": "Zenek",
+      "surname": "Tkacz",
+      "age": 18,
+      "cash": 2000
+    },
+    "products": [
+      {
+        "name": "Komputer",
+        "category": "Elektronika",
+        "price": 2400
+      },
+      {
+        "name": "Pan Tadeusz",
+        "category": "Ksiazka",
+        "price": 120
+      }
+    ]
+  },
+  {
+    "customer": {
       "name": "Jan",
       "surname": "Kos",
       "age": 18,
