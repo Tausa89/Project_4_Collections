@@ -160,7 +160,7 @@ public class ShoppingService {
     }
 
 
-    public Map<Integer, String> getMostPopularProductsForEveryAge(){
+    public Map<Integer, String> getMostPopularCategoryForEveryAge(){
 
 
         return shopping

@@ -15,7 +15,7 @@ public class App {
 
 
 //        var result = shoppingService.getCustomerWhichPaidMostInGivenCategory("Elektronika");
-        shoppingService.getMostPopularProductsForEveryAge();
+        shoppingService.getMostPopularCategoryForEveryAge();
 
         shoppingService.getShopping().forEach((k,v) -> System.out.println(k + " ----->" + v));
 
