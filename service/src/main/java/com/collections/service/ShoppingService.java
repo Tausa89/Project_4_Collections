@@ -6,7 +6,6 @@ import com.collections.persistence.Product;
 import com.collections.persistence.converter.JsonConverterOrders;
 import com.collections.service.exception.ShoppingServiceException;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -203,6 +202,55 @@ public class ShoppingService {
     public Map<String, BigDecimal> getAveragePriceForEveryCategory() {
 
 
+
+        var groupedByCategory =
+                preparedMapWithCategoriesAndProducts();
+
+
+        return groupedByCategory
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        p -> getAveragePrice(p.getValue())));
+
+    }
+
+    private BigDecimal getAveragePrice(List<Product> list) {
+
+        BigDecimal productsTotalPriceForCategory =
+                list
+                        .stream()
+                        .map(Product::getPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return productsTotalPriceForCategory.divide(BigDecimal.valueOf(list.size()), 2, RoundingMode.DOWN);
+    }
+
+    public Map<String, Product> getMostExpensiveProductForEveryCategory(){
+
+
+        Map<String, List<Product>> collect = preparedMapWithCategoriesAndProducts();
+
+        return getSortedPricesForEveryCategory(collect)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, p -> p.getValue().get(0)));
+
+
+    }
+
+    public Map<String, Product> getTheCheapestProductForEveryCategory(){
+
+        Map<String, List<Product>> collect = preparedMapWithCategoriesAndProducts();
+
+        return getSortedPricesForEveryCategory(collect)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, p -> p.getValue().get(p.getValue().size()-1)));
+
+    }
+
+    private Map<String, List<Product>> preparedMapWithCategoriesAndProducts() {
         var mapOfValues
                 = shopping
                 .values()
@@ -215,25 +263,21 @@ public class ShoppingService {
 
         products.forEach(allProducts::addAll);
 
-        var groupedByCategory =
-                allProducts
-                        .stream()
-                        .collect(Collectors.groupingBy(Product::getCategory));
 
-
-        return groupedByCategory
-                .entrySet()
+        return allProducts
                 .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        p -> average(p.getValue())));
-
+                .collect(Collectors.groupingBy(Product::getCategory));
     }
 
-    private BigDecimal average(List<Product> list) {
-
-        BigDecimal productsTotalPriceForCategory = list.stream().map(Product::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return productsTotalPriceForCategory.divide(BigDecimal.valueOf(list.size()), 2, RoundingMode.DOWN);
+    private Map<String, List<Product>> getSortedPricesForEveryCategory(Map<String, List<Product>> collect) {
+        return collect
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            p -> p.getValue()
+                                    .stream()
+                                    .sorted(Comparator.comparing(Product::getPrice,Comparator.reverseOrder()))
+                                    .collect(Collectors.toList())));
     }
 
 
