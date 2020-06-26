@@ -6,7 +6,9 @@ import com.collections.persistence.Product;
 import com.collections.persistence.converter.JsonConverterOrders;
 import com.collections.service.exception.ShoppingServiceException;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -98,10 +100,8 @@ public class ShoppingService {
 
     public Map<Customer, Map<Product, Integer>> getShopping() {
         return shopping;
+
     }
-
-
-
 
 
     public Customer getCustomerWhichPaidTheMost() {
@@ -124,12 +124,11 @@ public class ShoppingService {
     }
 
 
-    public Customer getCustomerWhichPaidMostInGivenCategory(String categoryName){
+    public Customer getCustomerWhichPaidMostInGivenCategory(String categoryName) {
 
-        if(Objects.isNull(categoryName)){
+        if (Objects.isNull(categoryName)) {
             throw new ShoppingServiceException("category name is null");
         }
-
 
 
         var result = shopping
@@ -149,7 +148,7 @@ public class ShoppingService {
     }
 
 
-    private Map<Product, Integer> getFilteredShoppingList(Map<Product,Integer> customerOrders, String filename){
+    private Map<Product, Integer> getFilteredShoppingList(Map<Product, Integer> customerOrders, String filename) {
 
         return customerOrders
                 .entrySet()
@@ -160,7 +159,7 @@ public class ShoppingService {
     }
 
 
-    public Map<Integer, String> getMostPopularCategoryForEveryAge(){
+    public Map<Integer, String> getMostPopularCategoryForEveryAge() {
 
 
         return shopping
@@ -198,6 +197,43 @@ public class ShoppingService {
                 .max(Map.Entry.comparingByValue())
                 .orElseThrow()
                 .getKey();
+    }
+
+
+    public Map<String, BigDecimal> getAveragePriceForEveryCategory() {
+
+
+        var mapOfValues
+                = shopping
+                .values()
+                .stream()
+                .collect(Collectors.toMap(Map::keySet, Map::values));
+
+        Set<Set<Product>> products = new HashSet<>(mapOfValues.keySet());
+
+        Set<Product> allProducts = new HashSet<>();
+
+        products.forEach(allProducts::addAll);
+
+        var groupedByCategory =
+                allProducts
+                        .stream()
+                        .collect(Collectors.groupingBy(Product::getCategory));
+
+
+        return groupedByCategory
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        p -> average(p.getValue())));
+
+    }
+
+    private BigDecimal average(List<Product> list) {
+
+        BigDecimal productsTotalPriceForCategory = list.stream().map(Product::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return productsTotalPriceForCategory.divide(BigDecimal.valueOf(list.size()), 2, RoundingMode.DOWN);
     }
 
 
