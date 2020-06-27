@@ -37,6 +37,9 @@ public class ShoppingService {
         for (Order order : orders) {
             if (!customers.containsKey(order.getCustomer())) {
                 addNewCustomer(customers, order);
+                for (Product product : order.getProducts()){
+                    addNewCustomerProduct(product, customers.get(order.getCustomer()));
+                }
             } else {
                 for (Product product : order.getProducts()) {
                     if (!customers.get(order.getCustomer()).containsKey(product)) {
@@ -279,6 +282,9 @@ public class ShoppingService {
                                     .sorted(Comparator.comparing(Product::getPrice,Comparator.reverseOrder()))
                                     .collect(Collectors.toList())));
     }
+
+
+
 
 
 }
