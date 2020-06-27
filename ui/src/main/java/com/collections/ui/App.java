@@ -15,7 +15,7 @@ public class App {
 
 
 //        var result = shoppingService.getCustomerWhichPaidMostInGivenCategory("Elektronika");
-        shoppingService.getTheCheapestProductForEveryCategory().forEach((k,v) -> System.out.println(k + "----->" + v));
+        shoppingService.getCustomersPayments();
 
 
 

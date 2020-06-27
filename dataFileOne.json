@@ -64,7 +64,7 @@
       "name": "Mariusz",
       "surname": "Kania",
       "age": 30,
-      "cash": 5000
+      "cash": 50000
     },
     "products": [
       {
@@ -93,9 +93,9 @@
         "price": 1500
       },
       {
-        "name": "Pucio",
+        "name": "Pan Tadeusz",
         "category": "Ksiazka",
-        "price": 50
+        "price": 120
       },
       {
         "name": "Komputer",
@@ -109,7 +109,7 @@
       "name": "Mariusz",
       "surname": "Kania",
       "age": 30,
-      "cash": 5000
+      "cash": 50000
     },
     "products": [
       {

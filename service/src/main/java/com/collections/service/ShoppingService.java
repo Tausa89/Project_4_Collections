@@ -24,6 +24,10 @@ public class ShoppingService {
 
     private Map<Customer, Map<Product, Integer>> init(String... filenames) {
 
+        if(Objects.isNull(filenames)){
+            throw new ShoppingServiceException("Data file is null");
+        }
+
         List<Order> orders = Arrays
                 .stream(filenames)
                 .flatMap(filename -> {
@@ -119,6 +123,11 @@ public class ShoppingService {
     }
 
     private BigDecimal totalPurchaseByCustomer(Map<Product, Integer> customerOrders) {
+
+        if (Objects.isNull(customerOrders)){
+            throw new ShoppingServiceException("Customer orders map is null");
+        }
+
         return customerOrders.entrySet()
                 .stream()
                 .map(o -> o.getKey().getPrice().multiply(BigDecimal.valueOf(o.getValue())))
@@ -150,12 +159,20 @@ public class ShoppingService {
     }
 
 
-    private Map<Product, Integer> getFilteredShoppingList(Map<Product, Integer> customerOrders, String filename) {
+    private Map<Product, Integer> getFilteredShoppingList(Map<Product, Integer> customerOrders, String categoryName) {
+
+        if (Objects.isNull(customerOrders)) {
+            throw new ShoppingServiceException("Customer orders map is null");
+        }
+
+        if (Objects.isNull(categoryName)) {
+            throw new ShoppingServiceException("category name is null");
+        }
 
         return customerOrders
                 .entrySet()
                 .stream()
-                .filter(x -> x.getKey().getCategory().equals(filename))
+                .filter(x -> x.getKey().getCategory().equals(categoryName))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     }
@@ -189,6 +206,11 @@ public class ShoppingService {
     }
 
     private String getMostCommonElementFromList(List<String> list) {
+
+
+        if (Objects.isNull(list)) {
+            throw new ShoppingServiceException("Required data list is null ");
+        }
         return list
                 .stream()
                 .collect(Collectors
@@ -219,6 +241,10 @@ public class ShoppingService {
     }
 
     private BigDecimal getAveragePrice(List<Product> list) {
+
+        if (Objects.isNull(list)) {
+            throw new ShoppingServiceException("Required data list is null ");
+        }
 
         BigDecimal productsTotalPriceForCategory =
                 list
@@ -272,8 +298,13 @@ public class ShoppingService {
                 .collect(Collectors.groupingBy(Product::getCategory));
     }
 
-    private Map<String, List<Product>> getSortedPricesForEveryCategory(Map<String, List<Product>> collect) {
-        return collect
+    private Map<String, List<Product>> getSortedPricesForEveryCategory(Map<String, List<Product>> mapToSort) {
+
+        if (Objects.isNull(mapToSort)) {
+            throw new ShoppingServiceException("Required data map is null ");
+        }
+
+        return mapToSort
                     .entrySet()
                     .stream()
                     .collect(Collectors.toMap(Map.Entry::getKey,
