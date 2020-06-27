@@ -285,6 +285,23 @@ public class ShoppingService {
 
 
 
+    public Map<Customer, BigDecimal> getCustomersPayments(){
+
+         return shopping
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        p -> p.getValue()
+                                .entrySet()
+                                .stream()
+                                .map(t -> t.getKey().getPrice().multiply(BigDecimal.valueOf(t.getValue())))
+                                .reduce(p.getKey().getCash(), BigDecimal::subtract)));
+
+
+    }
+
+
+
 
 
 }
