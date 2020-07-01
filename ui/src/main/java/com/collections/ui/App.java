@@ -1,6 +1,7 @@
 package com.collections.ui;
 
 import com.collections.service.ShoppingService;
+import com.collections.ui.menu.ShoppingServiceMenu;
 
 public class App {
 
@@ -11,11 +12,11 @@ public class App {
 
         ShoppingService shoppingService = new ShoppingService(FILE_NAME);
 
-//        shoppingService.getShopping().forEach((k,v) -> System.out.println(k + "----->" + v));
+        ShoppingServiceMenu shoppingServiceMenu = new ShoppingServiceMenu(shoppingService);
+
+        shoppingServiceMenu.mainMenu();
 
 
-//        var result = shoppingService.getCustomerWhichPaidMostInGivenCategory("Elektronika");
-        shoppingService.getCustomersPayments();
 
 
 

@@ -32,3 +32,9 @@ I
 ,ui/src/main/java/com/collections/ui/App.java,6\e\6e63fd1b666037c7f163e7f20519f21c6b398df2
 r
 Bservice/src/main/java/com/collections/service/ShoppingService.java,f\7\f7d1cf3601f4793bef9a42d8d86b1d66f9d96035
+t
+Dui/src/main/java/com/collections/ui/exception/UserDataException.java,e\6\e65b58d444f1aaed539216705082ff0cf02ecc46
+m
+=ui/src/main/java/com/collections/ui/data/UserDataService.java,7\d\7db5381e9231d2fd02bc2ba13517dc16160398c3
+q
+Aui/src/main/java/com/collections/ui/menu/ShoppingServiceMenu.java,c\9\c92381d97db43c24f50a03595f8259159ac8ceb6

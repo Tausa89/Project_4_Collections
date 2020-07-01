@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class ShoppingService {
 
-    private Map<Customer, Map<Product, Integer>> shopping;
+    private final Map<Customer, Map<Product, Long>> shopping;
 
 
     public ShoppingService(String... filenames) {
@@ -22,17 +22,14 @@ public class ShoppingService {
     }
 
 
-    private Map<Customer, Map<Product, Integer>> init(String... filenames) {
+    private Map<Customer, Map<Product, Long>> init(String... filenames) {
 
-        if(Objects.isNull(filenames)){
+        /*if(Objects.isNull(filenames)){
             throw new ShoppingServiceException("Data file is null");
         }
-
         List<Order> orders = Arrays
                 .stream(filenames)
-                .flatMap(filename -> {
-                    return new JsonConverterOrders(filename).fromJson().orElseThrow().stream();
-                })
+                .flatMap(filename -> new JsonConverterOrders(filename).fromJson().orElseThrow().stream())
                 .collect(Collectors.toList());
 
 
@@ -55,16 +52,26 @@ public class ShoppingService {
             }
         }
 
-        return customers;
+        return customers;*/
 
+        if(Objects.isNull(filenames)){
+            throw new ShoppingServiceException("Data file is null");
+        }
+
+        return Arrays
+                .stream(filenames)
+                .flatMap(filename -> new JsonConverterOrders(filename).fromJson().orElseThrow().stream())
+                .collect(Collectors.groupingBy(
+                        Order::getCustomer,
+                        Collectors.collectingAndThen(
+                                Collectors.flatMapping(o -> o.getProducts().stream(), Collectors.toList()),
+                                products -> products.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                        )
+                ));
     }
 
 
-    private void updateCustomerProduct(Map<Customer, Map<Product, Integer>> customersMap, Order order, Product product) {
-
-        if (Objects.isNull(customersMap)) {
-            throw new ShoppingServiceException("customersMap is null");
-        }
+    /*private void updateCustomerProduct(Order order, Product product) {
 
         if (Objects.isNull(order)) {
             throw new ShoppingServiceException("order is null");
@@ -77,9 +84,9 @@ public class ShoppingService {
                 .replace(product,
                         customersMap.get(order.getCustomer()).get(product),
                         customersMap.get(order.getCustomer()).get(product) + 1);
-    }
+    }*/
 
-    private void addNewCustomerProduct(Product product, Map<Product, Integer> productIntegerMap) {
+    /*private void addNewCustomerProduct(Product product, Map<Product, Integer> productIntegerMap) {
         if (Objects.isNull(product)) {
             throw new ShoppingServiceException("product is null");
         }
@@ -87,9 +94,9 @@ public class ShoppingService {
             throw new ShoppingServiceException("productMap is null");
         }
         productIntegerMap.put(product, 1);
-    }
+    }*/
 
-    private void addNewCustomer(Map<Customer, Map<Product, Integer>> customersMap, Order order) {
+   /*private void addNewCustomer(Map<Customer, Map<Product, Integer>> customersMap, Order order) {
 
         if (Objects.isNull(order)) {
             throw new ShoppingServiceException("order is null");
@@ -101,33 +108,30 @@ public class ShoppingService {
         Map<Product, Integer> temp = new HashMap<>();
         addNewCustomerProduct(order.getProducts().get(0), temp);
         customersMap.put(order.getCustomer(), temp);
-    }
+    }*/
 
 
-    public Map<Customer, Map<Product, Integer>> getShopping() {
-        return shopping;
-
-    }
-
-
-    public Customer getCustomerWhichPaidTheMost() {
-        var collect = shopping.entrySet()
+    public Customer getCustomerWhoPaidTheMost() {
+        /*var collect = shopping.entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> totalPurchaseByCustomer(e.getValue())));
+
         return collect.entrySet()
                 .stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
-                .orElseThrow();
+                .orElseThrow();*/
+
+        return shopping
+                .entrySet()
+                .stream()
+                .max((e1, e2) -> totalPurchaseByCustomer(e1.getValue()).compareTo(totalPurchaseByCustomer(e2.getValue())))
+                .orElseThrow(() -> new ShoppingServiceException("......"))
+                .getKey();
     }
 
-    private BigDecimal totalPurchaseByCustomer(Map<Product, Integer> customerOrders) {
-
-        if (Objects.isNull(customerOrders)){
-            throw new ShoppingServiceException("Customer orders map is null");
-        }
-
+    private BigDecimal totalPurchaseByCustomer(Map<Product, Long> customerOrders) {
         return customerOrders.entrySet()
                 .stream()
                 .map(o -> o.getKey().getPrice().multiply(BigDecimal.valueOf(o.getValue())))
@@ -141,25 +145,44 @@ public class ShoppingService {
             throw new ShoppingServiceException("category name is null");
         }
 
+        return shopping
+                .entrySet()
+                .stream()
+                .max((e1,e2) -> totalPurchaseByCategory(e1.getValue(),categoryName)
+                        .compareTo(totalPurchaseByCategory(e2.getValue(),categoryName)))
+                .orElseThrow(() -> new ShoppingServiceException("....."))
+                .getKey();
 
-        var result = shopping
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> getFilteredShoppingList(e.getValue(), categoryName)))
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        e -> totalPurchaseByCustomer(e.getValue())));
-        return result.entrySet()
-                .stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElseThrow();
+
+
+
+//        var result = shopping
+//                .entrySet()
+//                .stream()
+//                .collect(Collectors.toMap(Map.Entry::getKey, e -> getFilteredShoppingList(e.getValue(), categoryName)))
+//                .entrySet()
+//                .stream()
+//                .collect(Collectors.toMap(Map.Entry::getKey,
+//                        e -> totalPurchaseByCustomer(e.getValue())));
+//        return result.entrySet()
+//                .stream()
+//                .max(Map.Entry.comparingByValue())
+//                .map(Map.Entry::getKey)
+//                .orElseThrow();
 
     }
 
+    private BigDecimal totalPurchaseByCategory(Map<Product, Long> customerOrders, String category) {
+        return customerOrders.entrySet()
+                .stream()
+                .flatMap(e -> Collections.nCopies(e.getValue().intValue(), e.getKey()).stream())
+                .filter(p -> p.getCategory().equals(category))
+                .map(Product::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
-    private Map<Product, Integer> getFilteredShoppingList(Map<Product, Integer> customerOrders, String categoryName) {
+
+    /*private Map<Product, Integer> getFilteredShoppingList(Map<Product, Integer> customerOrders, String categoryName) {
 
         if (Objects.isNull(customerOrders)) {
             throw new ShoppingServiceException("Customer orders map is null");
@@ -175,7 +198,7 @@ public class ShoppingService {
                 .filter(x -> x.getKey().getCategory().equals(categoryName))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    }
+    }*/
 
 
     public Map<Integer, String> getMostPopularCategoryForEveryAge() {
@@ -225,7 +248,6 @@ public class ShoppingService {
 
 
     public Map<String, BigDecimal> getAveragePriceForEveryCategory() {
-
 
 
         var groupedByCategory =
@@ -305,20 +327,20 @@ public class ShoppingService {
         }
 
         return mapToSort
-                    .entrySet()
-                    .stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey,
-                            p -> p.getValue()
-                                    .stream()
-                                    .sorted(Comparator.comparing(Product::getPrice,Comparator.reverseOrder()))
-                                    .collect(Collectors.toList())));
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        p -> p.getValue()
+                                .stream()
+                                .sorted(Comparator.comparing(Product::getPrice,Comparator.reverseOrder()))
+                                .collect(Collectors.toList())));
     }
 
 
 
     public Map<Customer, BigDecimal> getCustomersPayments(){
 
-         return shopping
+        return shopping
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
