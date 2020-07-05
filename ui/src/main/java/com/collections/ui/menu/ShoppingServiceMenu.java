@@ -14,6 +14,7 @@ public class ShoppingServiceMenu {
 
 
     public void mainMenu() {
+        shoppingService.getShopping().forEach((k,v) -> System.out.println(k + "---->" + v));
 
 
         while (true) {
@@ -36,7 +37,10 @@ public class ShoppingServiceMenu {
                 System.out.println("----------------> EXCEPTION <---------------");
                 System.out.println(e.getMessage());
             }
+
         }
+
+
     }
 
 
